@@ -2,6 +2,111 @@ import tkinter as Tk
 import random
 from tkinter import font
 
+#création des cellules du labyrinthe et génération du labyrinthe
+class Cellule():
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+        self.visitee = False
+        self.murs = {'N': True, 'E': True, 'S': True, 'W': True}
+
+class Grille():
+    def __init__(self, l, c):
+        self.l = l
+        self.c = c
+        self.cadrillage = []
+        for i in range(self.l):
+            grille_ligne = []
+            for j in range(self.c):
+                grille_ligne.append(Cellule(j, i))
+            self.cadrillage.append(grille_ligne)
+    
+    def cellule(self, x, y):
+        if 0<=x<self.l and 0<=y<self.c:
+            return self.cadrillage[x][y]
+    
+    def effaceMur(self, orientation, coord):
+        if orientation == 'N':
+            self.cellule(coord[0],coord[1]).murs[orientation] = False
+            if 0 > coord[0]-1:
+                self.cellule(coord[0]-1, coord[1]).murs['S'] = False
+        if orientation == 'S':
+            self.cellule(coord[0],coord[1]).murs[orientation] = False
+            if self.l > coord[0]+1:
+                self.cellule(coord[0]+1, coord[1]).murs['N'] = False
+        if orientation == 'W':
+            self.cellule(coord[0],coord[1]).murs[orientation] = False
+            if 0 < coord[1]-1:
+                self.cellule(coord[0], coord[1]-1).murs['E'] = False
+        if orientation == 'E':
+            self.cellule(coord[0],coord[1]).murs[orientation] = False
+            if self.c > coord[1]+1:
+                self.cellule(coord[0], coord[1]+1).murs['W'] = False
+
+    def __str__(self):
+        """
+        retourne une chaine de caractères représentant le labyrinthe
+        pour les cellules touchant le bord gauche ou le bord du haut de la grille, les 4 murs sont représentés.
+        pour les autres, seuls les murs Est et Sud sont représentés
+        """
+        
+        laby_lignes = []
+        laby_l = ['+']
+        for y in range(self.c):
+            if self.cadrillage[0][y].murs['N']:
+                laby_l.append('---+')
+            else :
+                laby_l.append('   +')
+        laby_lignes.append(''.join(laby_l))
+                              
+              
+        for x in range(0,self.l):
+            if self.cadrillage[x][0].murs['W'] :
+                laby_l = ['|']
+            else :
+                laby_l = [' ']
+            for y in range(self.c):
+                if self.cadrillage[x][y].murs['E']:
+                    laby_l.append('   |')
+                else:
+                    laby_l.append('    ')
+            laby_lignes.append(''.join(laby_l))
+            laby_l = ['+']
+            for y in range(self.c):
+                if self.cadrillage[x][y].murs['S']:
+                    laby_l.append('---+')
+                else:
+                    laby_l.append('   +')
+            laby_lignes.append(''.join(laby_l))
+        
+        #laby_lignes.append('\n')
+        return '\n'.join(laby_lignes)
+
+def exploration_sidewinder(grille):
+    for i in range(grille.l):
+        deb_parcour = 0
+        for j in range(grille.c):
+            destroy = randint(0, 1)
+            if (destroy == 0 and j < grille.c-1) or (i == grille.l - 1 and j < grille.c-1):
+                grille.effaceMur('E', (i, j))
+            elif i < grille.l - 1:
+                k = randint(deb_parcour, j)
+                grille.effaceMur('S', (i, k))
+                deb_parcour = j+1
+    return grille
+
+def exploration_sidewinder(grille):
+    for i in range(grille.l):
+        deb_parcour = 0
+        for j in range(grille.c):
+            destroy = randint(0, 1)
+            if (destroy == 0 and j < grille.c-1) or (i == grille.l - 1 and j < grille.c-1):
+                grille.effaceMur('E', (i, j))
+            elif i < grille.l - 1:
+                k = randint(deb_parcour, j)
+                grille.effaceMur('S', (i, k))
+                deb_parcour = j+1
+    return grille
 # Création de la fenêtre
 
 root = Tk.Tk()
@@ -119,4 +224,5 @@ dessiner_grillage()
 
 
 # Lancement de la boucle principale
+
 root.mainloop()
